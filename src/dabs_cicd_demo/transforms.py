@@ -11,6 +11,10 @@ def revenue_by_destination(bookings: DataFrame, properties: DataFrame, destinati
         .join(properties, "property_id")
         .join(destinations, "destination_id")
         .groupBy("destination", "country")
-        .agg(F.sum("total_amount").alias("total_revenue"), F.count("booking_id").alias("booking_count"))
+        .agg(
+            F.sum("total_amount").alias("total_revenue"),
+            F.count("booking_id").alias("booking_count"),
+            F.avg("total_amount").alias("avg_booking_value")
+        )
         .orderBy(F.desc("total_revenue"))
     )
