@@ -46,6 +46,9 @@ jobs:
       DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+      # Select the bundle target for every CLI call. Without it, CLI commands run in the bundle
+      # folder resolve the workspace host from the default (dev) target.
+      DATABRICKS_BUNDLE_TARGET: staging
     steps:
       - uses: actions/checkout@v4
       - name: Ignore any personal ~/.databrickscfg on the runner machine
