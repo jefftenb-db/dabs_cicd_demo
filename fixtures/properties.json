@@ -1,0 +1,5 @@
+[
+  {"property_id": 10, "destination_id": 1},
+  {"property_id": 20, "destination_id": 2},
+  {"property_id": 30, "destination_id": 1}
+]

@@ -1,0 +1,16 @@
+.databricks/
+build/
+dist/
+__pycache__/
+*.egg-info
+.venv/
+scratch/**
+!scratch/README.md
+**/explorations/**
+**/!explorations/README.md
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+uv.lock.bak
+# uv.lock is local-only: it pins the internal PyPI proxy, which GitHub runners cannot reach.
+uv.lock

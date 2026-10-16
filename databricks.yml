@@ -1,0 +1,80 @@
+# This is a Declarative Automation Bundle definition for dabs_cicd_demo.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: dabs_cicd_demo
+  uuid: 4ddda386-3878-4f03-9269-bd3f980d878b
+
+include:
+  - resources/*.yml
+
+# Build stage: the Python wheel is built automatically on every deploy.
+artifacts:
+  python_artifact:
+    type: whl
+    build: uv build --wheel
+
+# Variable declarations. These variables are assigned in the targets below.
+variables:
+  catalog_source:
+    description: The source catalog to use
+  catalog_target:
+    description: The target catalog to use
+  schema_target:
+    description: The target schema to use
+
+targets:
+  # Personal development target, deployed from a laptop with the DEFAULT profile.
+  # - Deployed resources get prefixed with '[dev my_user_name]'
+  # - Any job schedules and triggers are paused by default.
+  # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://fevm-serverless-stable-tenbosch.cloud.databricks.com
+    variables:
+      catalog_source: samples
+      catalog_target: tenbosch
+      schema_target: wanderbricks
+
+  # Staging target in the dev workspace, deployed by GitHub Actions on every pull request
+  # as the dabs-cicd-demo-staging service principal.
+  staging:
+    mode: production
+    workspace:
+      host: https://fevm-serverless-stable-tenbosch.cloud.databricks.com
+      # Deploy into the service principal's home so there is a single copy of this target.
+      root_path: /Workspace/Users/93263899-0089-4507-bb00-9c19e5abb1ec/.bundle/${bundle.name}/${bundle.target}
+    run_as:
+      service_principal_name: 93263899-0089-4507-bb00-9c19e5abb1ec
+    presets:
+      trigger_pause_status: PAUSED
+    variables:
+      catalog_source: samples
+      catalog_target: tenbosch
+      schema_target: wanderbricks_staging
+    permissions:
+      - user_name: jeff.tenbosch@databricks.com
+        level: CAN_MANAGE
+      - service_principal_name: 93263899-0089-4507-bb00-9c19e5abb1ec
+        level: CAN_MANAGE
+
+  # Production target, deployed by GitHub Actions after merge to main (with approval)
+  # as the dabs-cicd-demo-prod service principal.
+  prod:
+    mode: production
+    workspace:
+      host: https://fevm-serverless-stable-tenbosch-prd.cloud.databricks.com
+      # Deploy into the service principal's home so there is a single copy of this target.
+      root_path: /Workspace/Users/12b18ac5-43fb-4dce-bf25-c7b934892595/.bundle/${bundle.name}/${bundle.target}
+    run_as:
+      service_principal_name: 12b18ac5-43fb-4dce-bf25-c7b934892595
+    variables:
+      catalog_source: samples
+      catalog_target: serverless_stable_tenbosch_prd_catalog
+      schema_target: wanderbricks
+    permissions:
+      - user_name: jeff.tenbosch@databricks.com
+        level: CAN_MANAGE
+      - service_principal_name: 12b18ac5-43fb-4dce-bf25-c7b934892595
+        level: CAN_MANAGE

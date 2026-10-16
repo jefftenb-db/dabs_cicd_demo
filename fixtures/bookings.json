@@ -1,0 +1,8 @@
+[
+  {"booking_id": 1, "property_id": 10, "status": "completed", "total_amount": 100.0},
+  {"booking_id": 2, "property_id": 10, "status": "completed", "total_amount": 250.0},
+  {"booking_id": 3, "property_id": 20, "status": "completed", "total_amount": 500.0},
+  {"booking_id": 4, "property_id": 20, "status": "cancelled", "total_amount": 900.0},
+  {"booking_id": 5, "property_id": 30, "status": "pending", "total_amount": 75.0},
+  {"booking_id": 6, "property_id": 99, "status": "completed", "total_amount": 1000.0}
+]

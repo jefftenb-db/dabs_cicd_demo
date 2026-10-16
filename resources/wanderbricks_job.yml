@@ -1,0 +1,31 @@
+resources:
+  jobs:
+    wanderbricks_daily_report:
+      name: "Wanderbricks Daily Booking Report"
+      tasks:
+        - task_key: run_analysis
+          environment_key: Default
+          max_retries: 0
+          python_wheel_task:
+            package_name: dabs_cicd_demo
+            entry_point: main
+            parameters:
+              - --catalog_source
+              - ${var.catalog_source}
+              - --catalog_target
+              - ${var.catalog_target}
+              - --schema_target
+              - ${var.schema_target}
+      schedule:
+        quartz_cron_expression: "0 0 8 * * ?"
+        timezone_id: "America/New_York"
+      email_notifications:
+        on_failure:
+          - jeff.tenbosch@databricks.com
+      environments:
+        - environment_key: Default
+          spec:
+            environment_version: "6"
+            dependencies:
+              - ../dist/*.whl
+      performance_target: PERFORMANCE_OPTIMIZED
