@@ -4,7 +4,6 @@ from pyspark.sql import SparkSession
 
 from dabs_cicd_demo.transforms import revenue_by_destination
 
-# This is the main entry point for the Databricks job. It is responsible for reading the input data, calling the transformation functions, and writing the output data.
 def main():
     # Process command-line arguments
     parser = argparse.ArgumentParser(
@@ -23,10 +22,10 @@ def main():
     properties = spark.table(f"{args.catalog_source}.wanderbricks.properties")
     destinations = spark.table(f"{args.catalog_source}.wanderbricks.destinations")
 
+
     revenue_by_destination(bookings, properties, destinations).write.mode("overwrite").saveAsTable(
         f"{args.catalog_target}.{args.schema_target}.revenue_by_destination"
     )
-
 
 if __name__ == "__main__":
     main()
