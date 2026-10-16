@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession
 
 from dabs_cicd_demo.transforms import revenue_by_destination
 
-
+# This is the main entry point for the Databricks job. It is responsible for reading the input data, calling the transformation functions, and writing the output data.
 def main():
     # Process command-line arguments
     parser = argparse.ArgumentParser(
