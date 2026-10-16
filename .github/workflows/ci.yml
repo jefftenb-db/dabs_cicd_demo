@@ -29,7 +29,11 @@ jobs:
   deploy-staging:
     name: deploy-staging
     needs: unit-tests
-    runs-on: ubuntu-latest
+    # The FEVM workspaces only accept allowlisted IPs, so deploys run on a self-hosted runner
+    # (with the Databricks CLI and uv preinstalled) inside the allowlisted network.
+    runs-on: [self-hosted, databricks-deploy]
+    # Never run fork PRs on the self-hosted runner.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     environment: staging
     # Only one staging deployment at a time; staging is shared by all PRs.
     concurrency:
@@ -42,10 +46,10 @@ jobs:
       DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+      # Ignore any personal ~/.databrickscfg on the runner machine.
+      DATABRICKS_CONFIG_FILE: ${{ runner.temp }}/no-databrickscfg
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-      - uses: databricks/setup-cli@main
       - name: Who am I
         run: databricks current-user me
       - name: Validate bundle

@@ -57,6 +57,15 @@ audience `https://<workspace-host>/oidc/v1/token`, subject
 workflows, set `DATABRICKS_AUTH_TYPE: github-oidc`, add `permissions: id-token: write`, and remove the
 client secret.
 
+## Runners
+
+* `unit-tests` runs on GitHub-hosted `ubuntu-latest`.
+* `deploy-staging` / `deploy-prod` run on a **self-hosted runner** (label `databricks-deploy`), because the
+  FEVM workspaces only accept connections from allowlisted IPs. The runner lives in
+  `~/actions-runner/dabs_cicd_demo` and needs the Databricks CLI and uv on its PATH.
+  Start it before a demo with `cd ~/actions-runner/dabs_cicd_demo && ./run.sh` (Ctrl+C to stop).
+* Fork PRs never reach the self-hosted runner, and workflow runs from outside contributors need approval.
+
 ## Local development
 
 ```
