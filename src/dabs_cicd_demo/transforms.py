@@ -5,7 +5,7 @@ from pyspark.sql import functions as F
 
 
 def revenue_by_destination(bookings: DataFrame, properties: DataFrame, destinations: DataFrame) -> DataFrame:
-    """Total revenue and booking count of completed bookings per destination, highest revenue first."""
+    """This is the total revenue and booking count of completed bookings per destination, highest revenue first."""
     return (
         bookings.filter(F.col("status") == "completed")
         .join(properties, "property_id")
