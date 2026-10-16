@@ -38,13 +38,24 @@ feature branch ──PR──▶ CI: unit-tests ─▶ deploy-staging (dev works
 | `staging` | `fevm-serverless-stable-tenbosch` | GitHub Actions as SP `dabs-cicd-demo-staging` | `tenbosch.wanderbricks_staging` |
 | `prod` | `fevm-serverless-stable-tenbosch-prd` | GitHub Actions as SP `dabs-cicd-demo-prod` | `serverless_stable_tenbosch_prd_catalog.wanderbricks` |
 
-## Authentication (no stored secrets)
+## Authentication
 
-GitHub Actions authenticates with [workload identity federation](https://docs.databricks.com/aws/en/dev-tools/auth/provider-github):
-each service principal has a federation policy that trusts GitHub's OIDC tokens for this repo **and** a
-specific GitHub environment (`staging` or `prod`). The workflows only need the non-secret environment
-variables `DATABRICKS_HOST` and `DATABRICKS_CLIENT_ID` (set on the GitHub environments) plus
-`DATABRICKS_AUTH_TYPE=github-oidc` and `permissions: id-token: write`.
+GitHub Actions deploys as a service principal (never a user), using
+[OAuth M2M](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m). Each GitHub environment
+(`staging`, `prod`) holds its own credentials, so a job can only reach the workspace for its environment:
+
+* variables: `DATABRICKS_HOST`, `DATABRICKS_CLIENT_ID`
+* secret: `DATABRICKS_CLIENT_SECRET` (SP OAuth secret, expires 2028-10-15)
+
+The `prod` environment also requires a reviewer's approval and only accepts deployments from `main`.
+
+**Upgrade path: secretless OIDC.** Databricks' most secure option is
+[workload identity federation](https://docs.databricks.com/aws/en/dev-tools/auth/provider-github). An
+account admin creates a federation policy per SP (issuer `https://token.actions.githubusercontent.com`,
+audience `https://<workspace-host>/oidc/v1/token`, subject
+`repo:jefftenb-db@100221386/dabs_cicd_demo@1421468708:environment:<staging|prod>`). Then, in the
+workflows, set `DATABRICKS_AUTH_TYPE: github-oidc`, add `permissions: id-token: write`, and remove the
+client secret.
 
 ## Local development
 
