@@ -1,7 +1,7 @@
 # CD: runs when changes are merged to main.
 #   1. Re-run unit tests on the merged code.
 #   2. After manual approval on the 'prod' GitHub environment, validate, build, deploy,
-#      and run the bundle in the prod workspace as the prod service principal (GitHub OIDC).
+#      and run the bundle in the prod workspace as the prod service principal (OAuth M2M).
 name: CD
 
 on:
@@ -10,7 +10,6 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write # required to request the GitHub OIDC token for Databricks
   contents: read
 
 jobs:
@@ -31,19 +30,24 @@ jobs:
   deploy-prod:
     name: deploy-prod
     needs: unit-tests
-    runs-on: ubuntu-latest
+    # The FEVM workspaces only accept allowlisted IPs, so deploys run on a self-hosted runner
+    # (with the Databricks CLI and uv preinstalled) inside the allowlisted network.
+    runs-on: [self-hosted, databricks-deploy]
     environment: prod
     concurrency:
       group: prod
       cancel-in-progress: false
     env:
-      DATABRICKS_AUTH_TYPE: github-oidc
+      # OAuth M2M as the environment's service principal. Host and client ID are environment
+      # variables; the client secret is an environment secret.
+      DATABRICKS_AUTH_TYPE: oauth-m2m
       DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-      - uses: databricks/setup-cli@main
+      - name: Ignore any personal ~/.databrickscfg on the runner machine
+        run: echo "DATABRICKS_CONFIG_FILE=$RUNNER_TEMP/no-databrickscfg" >> "$GITHUB_ENV"
       - name: Who am I
         run: databricks current-user me
       - name: Validate bundle
