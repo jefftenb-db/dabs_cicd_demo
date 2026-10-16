@@ -6,6 +6,9 @@ using a Declarative Automation Bundle, GitHub, GitHub Actions, and pytest.
 The bundle deploys one serverless job, **Wanderbricks Daily Booking Report**, which aggregates
 `samples.wanderbricks` into a `revenue_by_destination` table.
 
+**New here? Read [docs/DEVELOPER_WORKFLOW.md](docs/DEVELOPER_WORKFLOW.md)** for a step-by-step guide, with a
+diagram, from a local code change to production.
+
 * `src/dabs_cicd_demo/transforms.py` – pure, unit-testable transformation logic.
 * `src/dabs_cicd_demo/main.py` – job entry point (reads tables, calls the transform, writes the result).
 * `resources/` – job definition (Python wheel task on serverless).
