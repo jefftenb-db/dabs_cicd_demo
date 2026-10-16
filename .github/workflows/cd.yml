@@ -44,10 +44,10 @@ jobs:
       DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
-      # Ignore any personal ~/.databrickscfg on the runner machine.
-      DATABRICKS_CONFIG_FILE: ${{ runner.temp }}/no-databrickscfg
     steps:
       - uses: actions/checkout@v4
+      - name: Ignore any personal ~/.databrickscfg on the runner machine
+        run: echo "DATABRICKS_CONFIG_FILE=$RUNNER_TEMP/no-databrickscfg" >> "$GITHUB_ENV"
       - name: Who am I
         run: databricks current-user me
       - name: Validate bundle
